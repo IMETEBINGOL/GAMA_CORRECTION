@@ -72,7 +72,37 @@ class gamaEffectAdder:
         """
         # Apply GAMA effect
         return np.power(imageSignal, gamma) * scaler
-    
+    def addAdaptiveGamaEffect2DImageSignal(self, imageSignal: np.ndarray, gammamin: float, scaler: float, gamamax: float, kernelSize: int = 9, max_value: float = 1.0, min_value: float = 0.0) -> np.ndarray:
+        assert kernelSize % 2 == 1, "kernelSize must be odd"
+        padding = kernelSize // 2
+        shapeX, shapeY = imageSignal.shape
+        
+        # Pad the image
+        imageSignalPadded = np.pad(imageSignal, ((padding, padding), (padding, padding)), mode='reflect')
+        
+        # Output image
+        output = np.zeros_like(imageSignal)
+        
+        # Iterate over each pixel in the original image
+        for i in range(shapeX):
+            for j in range(shapeY):
+                # Extract the local kernel
+                kernel = imageSignalPadded[i:i + kernelSize, j:j + kernelSize]
+                mean = np.mean(kernel)
+                
+                # Compute adaptive gamma
+                gamma = gammamin + (gamamax - gammamin) * mean
+                original_pixel = imageSignalPadded[i + padding, j + padding]
+                adjusted_pixel = np.power(original_pixel, gamma) * scaler
+
+                if (adjusted_pixel > max_value):
+                    adjusted_pixel = max_value
+                elif (adjusted_pixel < min_value):
+                    adjusted_pixel = min_value
+                output[i, j] = adjusted_pixel
+        
+        return output
+
 if __name__ == "__main__":
     ## Example usage of gamaEffectAdder class
     gama_adder = gamaEffectAdder()

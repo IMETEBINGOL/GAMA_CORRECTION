@@ -46,7 +46,7 @@ class noiseSprinkler:
         """
         return self.LAST_MODIFIED
 
-    def addNoiseGaussian1D(self, signal : np.array, noise_level):
+    def addNoiseGaussian1D(self, signal : np.array, noise_level, max_value = 255.0, min_value = 0.0):
         """
         Adds Gaussian noise to a 1D signal.
 
@@ -58,8 +58,10 @@ class noiseSprinkler:
         np.array: The signal with added noise.
         """
         noise = r.normal(0, noise_level, len(signal))
-        return signal + noise
-    def addNoiseRandom1D(self, signal : np.array, noise_level):
+        noisy_signal = signal + noise
+        return np.clip(noisy_signal, min_value, max_value)
+
+    def addNoiseRandom1D(self, signal : np.array, noise_level, max_value = 255.0, min_value = 0.0):
         """
         Adds random noise to a 1D signal.
 
@@ -71,8 +73,10 @@ class noiseSprinkler:
         np.array: The signal with added noise.
         """
         noise = r.uniform(-noise_level, noise_level, len(signal))
-        return signal + noise
-    def addNoiseGaussian2D(self, signal : np.array, noise_level):
+        noisy_signal = signal + noise
+        return np.clip(noisy_signal, min_value, max_value)
+
+    def addNoiseGaussian2D(self, signal : np.array, noise_level, max_value = 255.0, min_value = 0.0):
         """
         Adds Gaussian noise to a 2D signal.
 
@@ -84,8 +88,10 @@ class noiseSprinkler:
         np.array: The signal with added noise.
         """
         noise = r.normal(0, noise_level, signal.shape)
-        return signal + noise
-    def addNoiseRandom2D(self, signal : np.array, noise_level):
+        noisy_signal = signal + noise
+        return np.clip(noisy_signal, min_value, max_value)
+
+    def addNoiseRandom2D(self, signal : np.array, noise_level, max_value = 255.0, min_value = 0.0):
         """
         Adds random noise to a 2D signal.
 
@@ -97,7 +103,8 @@ class noiseSprinkler:
         np.array: The signal with added noise.
         """
         noise = r.uniform(-noise_level, noise_level, signal.shape)
-        return signal + noise
+        noisy_signal = signal + noise
+        return np.clip(noisy_signal, min_value, max_value)
 
 
 

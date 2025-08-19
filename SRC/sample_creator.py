@@ -1,6 +1,7 @@
 ## Import necessary modules
 import numpy as np
 import cv2 as cv2
+import matplotlib.pyplot as plt
 ## Import custom modules
 from GAMA_EFFECT_ADDER.gama_effect_adder import gamaEffectAdder
 from NOISE_SPRINKLER.noise_sprinkler import noiseSprinkler
@@ -50,31 +51,35 @@ class SampleCreator:
         Creates a 1D random signal.
         """
         return self.SA.CreateRandomImageSignal1D(length, signalLevel)
-    def createRandomImageSignal1DWithGaussianNoise(self, shape: tuple, signalLevel: float, noiseLevel: float):
+    def createRandomImageSignal1DWithGaussianNoise(self, shape: tuple, signalLevel: float, noiseLevel: float, 
+                                                   max_value: float = 255.0, min_value: float = 0.0):
         """
         Creates a 1D random signal with Gaussian noise.
         """
-        return self.NS.addNoiseGaussian1D(self.SA.CreateRandomImageSignal1D(shape, signalLevel), noiseLevel)
-    def createRandomImageSignal1DWithUniformNoise(self, shape: tuple, signalLevel: float, noiseLevel: float):
+        return self.NS.addNoiseGaussian1D(self.SA.CreateRandomImageSignal1D(shape, signalLevel), noiseLevel, max_value, min_value)
+    def createRandomImageSignal1DWithUniformNoise(self, shape: tuple, signalLevel: float, noiseLevel: float, 
+                                                   max_value: float = 255.0, min_value: float = 0.0):
         """
         Creates a 1D random signal with uniform noise.
         """
-        return self.NS.addNoiseUniform1D(self.SA.CreateRandomImageSignal1D(shape, signalLevel), noiseLevel)
+        return self.NS.addNoiseUniform1D(self.SA.CreateRandomImageSignal1D(shape, signalLevel), noiseLevel, max_value, min_value)
     def createRandomImageSignal2D(self, shape: tuple, signalLevel: float):
         """
         Creates a 2D random signal.
         """
         return self.SA.CreateRandomImageSignal2D(shape, signalLevel)
-    def createRandomImageSignal2DWithGaussianNoise(self, shape: tuple, signalLevel: float, noiseLevel: float):
+    def createRandomImageSignal2DWithGaussianNoise(self, shape: tuple, signalLevel: float, noiseLevel: float, 
+                                                    max_value: float = 255.0, min_value: float = 0.0):
         """
         Creates a 2D random signal with Gaussian noise.
         """
-        return self.NS.addNoiseGaussian2D(self.SA.CreateRandomImageSignal2D(shape, signalLevel), noiseLevel)
-    def createRandomImageSignal2DWithUniformNoise(self, shape: tuple, signalLevel: float, noiseLevel: float):
+        return self.NS.addNoiseGaussian2D(self.SA.CreateRandomImageSignal2D(shape, signalLevel), noiseLevel, max_value, min_value)
+    def createRandomImageSignal2DWithUniformNoise(self, shape: tuple, signalLevel: float, noiseLevel: float,
+                                                   max_value: float = 255.0, min_value: float = 0.0):
         """
         Creates a 2D random signal with uniform noise.
         """
-        return self.NS.addNoiseUniform2D(self.SA.CreateRandomImageSignal2D(shape, signalLevel), noiseLevel)
+        return self.NS.addNoiseUniform2D(self.SA.CreateRandomImageSignal2D(shape, signalLevel), noiseLevel, max_value, min_value)
     def imageToImageSignal1D(self, filePath: str):
         """
         Converts a PNG image to a 1D signal.
@@ -86,18 +91,23 @@ class SampleCreator:
         np.array: The 1D signal represented by the image.
         """
         return self.SA.imageToImageSignal1D(filePath)
-    def imageToImageSignal1DWithUniformNoise(self, filePath: str):
+    def imageToImageSignal1DWithUniformNoise(self, filePath: str, noiseLevel: float = 0.1, max_value = 255.0, min_value = 0.0):
         """
         Converts a PNG image to a 1D signal with uniform noise.
 
         Parameters:
         filePath (str): The path to the PNG file.
-        
+
+        Returns:
+        np.array: The 1D signal represented by the image.
+        noiseLevel (float): The level of noise to be added.
+        max_value (float): The maximum value for clipping.
+        min_value (float): The minimum value for clipping.
         Returns:
         np.array: The 1D signal represented by the image.
         """
-        return self.NS.addNoiseUniform1D(self.SA.imageToImageSignal1D(filePath))
-    def imageToImageSignal1DWithGaussianNoise(self, filePath: str, noiseLevel: float = 0.1):
+        return self.NS.addNoiseRandom1D(self.SA.imageToImageSignal1D(filePath), noiseLevel, max_value, min_value)
+    def imageToImageSignal1DWithGaussianNoise(self, filePath: str, noiseLevel: float = 0.1, max_value = 255.0, min_value = 0.0):
         """
         Converts a PNG image to a 1D signal with Gaussian noise.
 
@@ -107,7 +117,7 @@ class SampleCreator:
         Returns:
         np.array: The 1D signal represented by the image.
         """
-        return self.NS.addNoiseGaussian1D(self.SA.imageToImageSignal1D(filePath), noiseLevel)
+        return self.NS.addNoiseGaussian1D(self.SA.imageToImageSignal1D(filePath), noiseLevel, max_value, min_value)
     def imageToImageSignal2D(self, filePath: str):
         """
         Converts a PNG image to a 2D signal.
@@ -119,7 +129,7 @@ class SampleCreator:
         np.array: The 2D signal represented by the image.
         """
         return self.SA.imageToImageSignal2D(filePath)
-    def imageToImageSignal2DWithUniformNoise(self, filePath: str, noiseLevel: float = 0.1):
+    def imageToImageSignal2DWithUniformNoise(self, filePath: str, noiseLevel: float = 0.1, max_value = 255.0, min_value = 0.0):
         """
         Converts a PNG image to a 2D signal with uniform noise.
 
@@ -129,8 +139,8 @@ class SampleCreator:
         Returns:
         np.array: The 2D signal represented by the image.
         """
-        return self.NS.addNoiseUniform2D(self.SA.imageToImageSignal2D(filePath), noiseLevel)
-    def imageToImageSignal2DWithGaussianNoise(self, filePath: str, noiseLevel: float = 0.1):
+        return self.NS.addNoiseRandom2D(self.SA.imageToImageSignal2D(filePath), noiseLevel, max_value, min_value)
+    def imageToImageSignal2DWithGaussianNoise(self, filePath: str, noiseLevel: float = 0.1, max_value = 255.0, min_value = 0.0):
         """
         Converts a PNG image to a 2D signal with Gaussian noise.
 
@@ -140,7 +150,7 @@ class SampleCreator:
         Returns:
         np.array: The 2D signal represented by the image.
         """
-        return self.NS.addNoiseGaussian2D(self.SA.imageToImageSignal2D(filePath), noiseLevel)
+        return self.NS.addNoiseGaussian2D(self.SA.imageToImageSignal2D(filePath), noiseLevel, max_value, min_value)
     def applyGamaEffect1D(self, signal: np.array, gama: float, scaler: float = 1.0):
         """
         Applies Gama effect to a 1D signal.
@@ -341,6 +351,22 @@ class SampleCreator:
         """
         return self.SA.linearMap2DSignal(signal, newMin, newMax)
 
+    def showInfo2DSignal(self, signal: np.array, title: str = "2D Signal Info"):
+        """
+        Displays information about a 2D signal.
+
+        Parameters:
+        signal (np.array): The 2D signal to be analyzed.
+        title (str): The title of the information display.
+        """
+        print(title)
+        print("----------------------")
+        print("Max value:", SC.findMaxValue2DArray(signal))
+        print("Min value:", SC.findMinValue2DArray(signal))
+        print("Mean value:", np.mean(signal))
+        print("Standard deviation:", np.std(signal))
+        SC.showImage(SC.floatArrayToUint8Array(signal), title=title, cmap="gray", min_value=0.0, max_value=255.0)
+
 if __name__ == "__main__":
     # Example usage
     SC = SampleCreator()
@@ -350,26 +376,46 @@ if __name__ == "__main__":
     print(SC.getCreationDate())
     print(SC.getLastModified())
 
-    # create samples 
-    originalSignal1DwithGaussianNoise   = SC.imageToImageSignal1DWithGaussianNoise("SAMPLES/sample_image_dog.jpg", 0.2)
-    originalSignal2DwithGaussianNoise   = SC.imageToImageSignal2DWithGaussianNoise("SAMPLES/sample_image_dog.jpg", 0.2)
-    # Normalize the signals to have minimum value of 0
-    normalizedSignal1D                  = SC.linearMap1DSignal(originalSignal1DwithGaussianNoise, 0.0, originalSignal1DwithGaussianNoise.max())
-    normalizedSignal2D                  = SC.linearMap2DSignal(originalSignal2DwithGaussianNoise, 0.0, originalSignal2DwithGaussianNoise.max())
-    # Plot the signals
-    #SC.plot1DSignal(originalSignal1DwithGaussianNoise, title="Original 1D Signal with Gaussian Noise", xlabel="Sample Index", ylabel="Signal Value")
-    #SC.plot2DSignal(SC.floatArrayToUint16Array(originalSignal2DwithGaussianNoise), title="Original 2D Signal with Gaussian Noise", cmap="gray", xlabel="Sample X Index", ylabel="Sample Y Index", min_value=originalSignal2DwithGaussianNoise.min(), max_value=originalSignal2DwithGaussianNoise.max())
-    #SC.showImage(SC.floatArrayToUint16Array(originalSignal2DwithGaussianNoise), title="Original 2D Signal Image", cmap="gray", min_value=originalSignal2DwithGaussianNoise.min(), max_value=originalSignal2DwithGaussianNoise.max())
-    ## Plot the normalized signals
-    #SC.plot1DSignal(normalizedSignal1D, title="Normalized 1D Signal", xlabel="Sample Index", ylabel="Signal Value")
-    #SC.plot2DSignal(SC.floatArrayToUint16Array(normalizedSignal2D), title="Normalized 2D Signal", cmap="gray", xlabel="Sample X Index", ylabel="Sample Y Index", min_value=normalizedSignal2D.min(), max_value=normalizedSignal2D.max())
-    #SC.showImage(SC.floatArrayToUint16Array(normalizedSignal2D), title="Normalized 2D Signal Image", cmap="gray", min_value=normalizedSignal2D.min(), max_value=normalizedSignal2D.max())
-    ## Apply Gama effect
-    gamaEffect1D                        = SC.applyGamaEffect1D(normalizedSignal1D, 0.5, scaler=10.0)
-    gamaEffect2D                        = SC.applyGamaEffect2D(normalizedSignal2D, 0.5, scaler=10.0)
-    normalizedGamaEffect1D              = SC.linearMap1DSignal(gamaEffect1D, 0.0, gamaEffect1D.max())
-    normalizedGamaEffect2D              = SC.linearMap2DSignal(gamaEffect2D, 0.0, gamaEffect2D.max())
-    # Plot the Gama effect signals
-    SC.plot1DSignal(normalizedGamaEffect1D, title="Gama Effect 1D Signal", xlabel="Sample Index", ylabel="Signal Value")
-    SC.plot2DSignal(SC.floatArrayToUint16Array(normalizedGamaEffect2D), title="Gama Effect 2D Signal", cmap="gray", xlabel="Sample X Index", ylabel="Sample Y Index", min_value=0, max_value=255)
-    SC.showImage(SC.floatArrayToUint16Array(normalizedGamaEffect2D), title="Gama Effect 2D Signal Image", cmap="gray", min_value=0, max_value=255)
+    # create samples
+    originalSignal2D                                = SC.imageToImageSignal2D("SAMPLES/sample_image_dog3.jpg")
+    originalSignal2DwithGaussianNoise               = SC.imageToImageSignal2DWithGaussianNoise("SAMPLES/sample_image_dog3.jpg", 10, max_value=255.0, min_value=0.0)
+    SC.showInfo2DSignal(originalSignal2D, title="Original Image")
+    #SC.showInfo2DSignal(originalSignal2DwithGaussianNoise, title="Original Image with Gaussian Noise")
+    normalizedSignal2D                              = SC.linearMap2DSignal(originalSignal2D, 0.0, 1.0)
+    normalizedSignal2DwithGaussianNoise             = SC.linearMap2DSignal(originalSignal2DwithGaussianNoise, 0.0, 1.0)
+    gamaEffectOriginalSignal2D                      = SC.applyGamaEffect2D(normalizedSignal2D, 5, scaler=1.0)
+    gamaEffectOriginalSignal2DwithGaussianNoise     = SC.applyGamaEffect2D(normalizedSignal2DwithGaussianNoise, 5, scaler=1.0)
+    adaptiveGamaEffectOriginalSignal2D              = SC.GEA.addAdaptiveGamaEffect2DImageSignal(normalizedSignal2D, gammamin=0.6, scaler=1.0, gamamax=1.4, kernelSize=49, max_value=1.0, min_value=0.0)
+    normalizedSignal2D                              = gamaEffectOriginalSignal2D * 255.0
+    normalizedSignal2DwithGaussianNoise             = gamaEffectOriginalSignal2DwithGaussianNoise * 255.0
+    adaptiveGamaEffectOriginalSignal2D              = adaptiveGamaEffectOriginalSignal2D * 255.0
+    #SC.showInfo2DSignal(SC.floatArrayToUint8Array(normalizedSignal2D), title="Normalized Signal 2D")
+    #SC.showInfo2DSignal(SC.floatArrayToUint8Array(normalizedSignal2DwithGaussianNoise), title="Normalized Signal 2D with Gaussian Noise")
+    SC.showInfo2DSignal(SC.floatArrayToUint8Array(adaptiveGamaEffectOriginalSignal2D), title="Adaptive Gama Effect Original Signal 2D")
+    
+    # Prepare data safely
+    signal1 = np.clip(adaptiveGamaEffectOriginalSignal2D, 0, 255).astype(np.uint8)
+    signal2 = np.clip(originalSignal2D, 0, 255).astype(np.uint8)
+
+    # Compute histograms
+    histogram, _ = np.histogram(signal1.flatten(), bins=256, range=(0, 256))
+    histogram2, _ = np.histogram(signal2.flatten(), bins=256, range=(0, 256))
+
+    # Plotting
+    plt.figure(figsize=(12, 6))
+
+    plt.subplot(1, 2, 1)
+    plt.bar(np.arange(256), histogram, color='blue', label='Adaptive Gamma Effect')
+    plt.title('Histogram of Adaptive Gamma Effect Signal')
+    plt.xlabel('Pixel Value')
+    plt.ylabel('Frequency')
+    plt.legend()
+
+    plt.subplot(1, 2, 2)
+    plt.bar(np.arange(256), histogram2, color='red', label='Original Signal')
+    plt.title('Histogram of Original Signal')
+    plt.xlabel('Pixel Value')
+    plt.ylabel('Frequency')
+    plt.legend()
+    plt.tight_layout()
+    plt.show()

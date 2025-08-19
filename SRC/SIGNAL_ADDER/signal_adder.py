@@ -58,7 +58,7 @@ class signalAdder:
         np.array: The 1D signal represented by the image.
         """
         from PIL import Image
-        img = Image.open(filePath)
+        img = Image.open(filePath).convert("L")
         return np.array(img).flatten()
     def imageToImageSignal2D(self, filePath : str):
         """
@@ -69,7 +69,7 @@ class signalAdder:
         np.array: The 2D signal represented by the image.
         """
         from PIL import Image
-        img = Image.open(filePath)
+        img = Image.open(filePath).convert("L")
         return np.array(img)
     
     def linearMap1DSignal(self, signal : np.ndarray, minValue : float, maxValue : float):
