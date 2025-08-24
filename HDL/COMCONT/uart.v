@@ -6,35 +6,65 @@ module uart
     parameter                       UARTPARITY                  = "NO",
     parameter                       UARTSHIFT                   = "MSBFIRST",    
     parameter                       UARTFIFOSIZE                = 1024,
-    parameter                       UARTFIFOOUTWIDTH            = 8 
+    parameter                       UARTFIFOWIDTH               = 8 
 ) 
 (
-    ports
+    // CLOCK AND RESET 
+    // ---
+    input                           clkUart,
+    input                           rstUart,
+    input                           clkFifo,
+    input                           rstFifo,
+    // ---
+    // UART 
+    // ---
+    input                           rx,
+    output                          tx,
+    // ---
+    // RX FIFO CONTROL AND DATAPATH
+    // ---
+    output  [UARTFIFOWIDTH-1:0]     fifoRxReadData,
+    output                          fifoRxEmpty,
+    input                           fifoRxReadDataEn,
+    output                          fifoRxReadDataVld,
+    output                          fifoRxRstDone,
+    output  [1:0]                   uartRxError,
+    // --
+    // TX FIFO CONTROL AND DATAPATH
+    // ---
+    input   [UARTFIFOWIDTH-1:0]     fifoTxWriteData,
+    input                           fifoTxWriteDataEn,
+    output                          fifoTxFull,
+    output                          fifoTxRstDone
+    // ---
 );
 
 
 
-// RX 
+// RX
+wire                                fifoRxWriteEn;
+wire    [UARTPACKAGEWIDTH-1:0]      fifoRxWriteData;
+wire                                fifoRxFull;
 // ---
-async_fifo  #(
+asyncFifo  #(
     .DATAINWIDTH                    (UARTPACKAGEWIDTH),
-    .DATAOUTWIDTH                   (UARTFIFOOUTWIDTH),
+    .DATAOUTWIDTH                   (UARTFIFOWIDTH),
     .MEMORYSIZE                     (UARTFIFOSIZE)
 )
 ASYNC_FIFO_RX_INST 
 (
-    .clkIn                          (clkIn),
-    .rstIn                          (rstIn),
-    .clkOut                         (clkOut),
-    .fifoRstDone                    (fifoRstDone),
-    .fifoEmpty                      (fifoEmpty),
-    .fifoFull                       (fifoFull),
-    .fifoOverflow                   (fifoOverflow),
-    .fifoDataOutValid               (fifoDataOutValid),
-    .fifoDataIn                     (fifoDataIn),
-    .fifoWriteEn                    (fifoWriteEn),
-    .fifoDataOut                    (fifoDataOut),
-    .fifoReadEn                     (fifoReadEn)
+    .clkIn                          (clkUart),
+    .rstIn                          (rstFifo),
+    .clkOut                         (clkFifo),
+    .fifoRstDone                    (fifoRxRstDone),
+    .fifoEmpty                      (fifoRxEmpty),
+    .fifoFull                       (fifoRxFull),
+    .fifoOverflow                   (),                     // NO NEED BECAUSE UART RX WRITE OPERATION IS INHIBITED IF FIFO IS FULL
+    .fifoDataOutValid               (fifoRxReadDataVld),
+    .fifoDataIn                     (fifoRxWriteData),
+    .fifoWriteEn                    (fifoRxWriteEn),
+    .fifoDataOut                    (fifoRxReadData),
+    .fifoReadEn                     (fifoRxReadDataEn)
 );
 
 uartRx #(
@@ -46,12 +76,13 @@ uartRx #(
 )
 UART_RX_INST 
 (
-    .clk                            (clk),
-    .rst                            (rst),
+    .clk                            (clkUart),
+    .rst                            (rstUart),
     .rx                             (rx),
-    .fifoData                       (fifoData),
-    .fifoFull                       (fifoFull),
-    .fifoWrite                      (fifoWrite)
+    .fifoData                       (fifoRxWriteData),
+    .fifoFull                       (fifoRxFull),
+    .fifoWrite                      (fifoRxWriteEn),
+    .error                          (uartRxError)
 );
 // ---
 
@@ -59,26 +90,29 @@ UART_RX_INST
 
 
 // TX
+wire    [UARTPACKAGEWIDTH-1:0]      fifoTxReadData;
+wire    [UARTPACKAGEWIDTH-1:0]      fifoTxReadDataEn;
+wire                                fifoTxEmpty;
 // ---
-async_fifo #(
-    .DATAINWIDTH                    (UARTFIFOOUTWIDTH),
+asyncFifo #(
+    .DATAINWIDTH                    (UARTFIFOWIDTH),
     .DATAOUTWIDTH                   (UARTPACKAGEWIDTH),
     .MEMORYSIZE                     (UARTFIFOSIZE)
 )
 ASYNC_FIFO_TX_INST 
 (
-    .clkIn                          (clkIn),
-    .rstIn                          (rstIn),
-    .clkOut                         (clkOut),
-    .fifoRstDone                    (fifoRstDone),
-    .fifoEmpty                      (fifoEmpty),
-    .fifoFull                       (fifoFull),
-    .fifoOverflow                   (fifoOverflow),
-    .fifoDataOutValid               (fifoDataOutValid),
-    .fifoDataIn                     (fifoDataIn),
-    .fifoWriteEn                    (fifoWriteEn),
-    .fifoDataOut                    (fifoDataOut),
-    .fifoReadEn                     (fifoReadEn)
+    .clkIn                          (clkFifo),
+    .rstIn                          (rstFifo),
+    .clkOut                         (clkUart),
+    .fifoRstDone                    (fifoTxRstDone),
+    .fifoEmpty                      (fifoTxEmpty),
+    .fifoFull                       (fifoTxFull),
+    .fifoOverflow                   (),                     // NO NEED BECAUSE ONE FULL IS CHECKED
+    .fifoDataOutValid               (),                     // NO NEED BECAUSE ONE CLOCK IS ASSUMED
+    .fifoDataIn                     (fifoTxWriteData),
+    .fifoWriteEn                    (fifoTxWriteDataEn),
+    .fifoDataOut                    (fifoTxReadData),
+    .fifoReadEn                     (fifoTxReadDataEn)
 );
   
 uartTx #(
@@ -90,12 +124,12 @@ uartTx #(
 )
 UART_TX_INST 
 (
-    .clk                            (clk),
-    .rst                            (rst),
+    .clk                            (clkUart),
+    .rst                            (rstUart),
     .tx                             (tx),
-    .fifoData                       (fifoData),
-    .fifoEmpty                      (fifoEmpty),
-    .fifoRead                       (fifoRead)
+    .fifoData                       (fifoTxReadData),
+    .fifoEmpty                      (fifoTxEmpty),
+    .fifoRead                       (fifoTxReadDataEn)
 );
 // ---
 // END OF MODULE

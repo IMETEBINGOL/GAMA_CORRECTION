@@ -1,6 +1,6 @@
 // ENG: IBRAHIM METE BINGOL
 // COMPANY: MPTECH
-module async_fifo 
+module asyncFifo 
 #(
     parameter                             DATAINWIDTH                 = 8,
     parameter                             DATAOUTWIDTH                = 8,
@@ -28,7 +28,7 @@ module async_fifo
    input       [DATAINWIDTH-1:0]          fifoDataIn,
    input                                  fifoWriteEn,
    output      [DATAOUTWIDTH-1:0]         fifoDataOut,
-   input                                  fifoReadEn,          
+   input                                  fifoReadEn         
     // ---
 );
 

@@ -3,7 +3,7 @@
 module regMem 
 #(
     parameter                                       REGISTER_MEMORY_DATA_WIDTH                  =   16,
-    parameter                                       REGISTER_MEMORY_READ_ONLY_MEMORY_DEPTH      =   128,                
+    parameter                                       REGISTER_MEMORY_READ_ONLY_MEMORY_DEPTH      =   128,
     parameter                                       REGISTER_MEMORY_RANDOM_ACCESS_MEMORY_DEPTH  =   128,
     localparam                                      REGISTER_MEMORY_DEPTH                       =   REGISTER_MEMORY_READ_ONLY_MEMORY_DEPTH + REGISTER_MEMORY_RANDOM_ACCESS_MEMORY_DEPTH,
     localparam                                      RMP_BIT_LENGTH                              =   $clog2(REGISTER_MEMORY_DEPTH)       

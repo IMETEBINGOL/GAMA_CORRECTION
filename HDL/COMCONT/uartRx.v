@@ -24,7 +24,7 @@ module uartRx
     input                                       rx,
     output  reg     [PACKAGESIZE-1:0]           fifoData,
     input                                       fifoFull,
-    output  reg                                 fifoWrite
+    output  reg                                 fifoWrite,
     output  reg     [1:0]                       error
     // ---
 );
@@ -96,7 +96,7 @@ begin
         case (state)
             IDLE:
             begin
-                if (!rx)
+                if (!rx && !fifoFull)
                 begin
                     state                       <= START;
                     counterEnable               <= HIGH;
@@ -159,7 +159,7 @@ begin
                     state                   <= IDLE;
                     if (!rx)
                     begin
-                        error               <= `RXPARITYERROR
+                        error               <= `RXSTOPERROR
                     end
                 end
             end
